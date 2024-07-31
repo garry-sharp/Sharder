@@ -31,6 +31,7 @@ func init() {
 var verbose bool
 var debug bool
 var lang string
+var wordListDir string
 
 func assembleCmd() *cobra.Command {
 
@@ -145,23 +146,37 @@ func SetupCLI() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "Enable verbose output")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug output")
 	rootCmd.PersistentFlags().StringVar(&lang, "lang", "en", "The language to use for the mnemonic")
+	rootCmd.PersistentFlags().StringVar(&wordListDir, "wordlists", ".", "The directory containing the wordlists")
+
+	rootCmd.AddCommand(shardCmd())
+	rootCmd.AddCommand(assembleCmd())
+
+	rootCmd.PersistentFlags().ParseErrorsWhitelist.UnknownFlags = true
+	rootCmd.PersistentFlags().Parse(os.Args)
+
+	settings.GetSettings().Verbose = verbose
+	settings.GetSettings().Lang = lang
+	settings.GetSettings().Debug = debug
+	settings.GetSettings().WordListDir = wordListDir
+
+	err := crypt.LoadWordList(settings.GetSettings().WordListDir)
+	if err != nil {
+		settings.FatalLog(fmt.Sprintf("No wordlists found in dir %s", settings.GetSettings().WordListDir))
+	}
 
 	if !verifyLang(lang) {
 		log.Fatalln("Unsupported language", lang)
 		os.Exit(1)
 	}
 
-	settings.GetSettings().Verbose = verbose
-	settings.GetSettings().Lang = lang
-
 	settings.VerboseLog("Verbose mode enabled")
 	settings.VerboseLog("Language set to", lang)
 
 	settings.DebugLog("Debug mode enabled")
 
-	// Add your command here
-	rootCmd.AddCommand(shardCmd())
-	rootCmd.AddCommand(assembleCmd())
-
 	return rootCmd
+}
+
+func setup() {
+
 }

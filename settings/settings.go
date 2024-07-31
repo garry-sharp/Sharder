@@ -10,20 +10,26 @@ var settings *Settings
 var tzFormat string = "yyyy-MM-dd'T'HH:mm:ssZ"
 
 type Settings struct {
-	Verbose bool
-	Debug   bool
-	Lang    string
+	Verbose     bool
+	Debug       bool
+	Lang        string
+	WordListDir string
 }
 
 func GetSettings() *Settings {
 	if settings == nil {
 		settings = &Settings{
-			Verbose: true,
-			Debug:   false,
-			Lang:    "en",
+			Verbose:     true,
+			Debug:       false,
+			Lang:        "en",
+			WordListDir: "./wordlists",
 		}
 	}
 	return settings
+}
+
+func SetSettings(s *Settings) {
+	settings = s
 }
 
 func VerboseLog(txt ...any) {

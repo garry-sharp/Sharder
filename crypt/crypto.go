@@ -2,7 +2,10 @@ package crypt
 
 import (
 	"crypto/sha256"
+	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 	"xxx/settings"
 
 	"github.com/corvus-ch/shamir"
@@ -15,6 +18,37 @@ type ShardT struct {
 	Data  []byte
 }
 
+func ElevenBitToBytes2(ints []int) ([]byte, error) {
+	concatenatedString := ""
+	for _, num := range ints {
+		concatenatedString += fmt.Sprintf("%011b", num)
+	}
+	if len(concatenatedString) != len(ints)*11 {
+		return []byte{}, fmt.Errorf("Failed to convert to bytes, length mismatch")
+	}
+
+	result := []byte{}
+	for i := 0; i < len(concatenatedString); i++ {
+		if (i+1)%8 == 0 {
+			b := byte(0)
+			for j, r := range concatenatedString[i-7 : i+1] {
+				if r == '1' {
+					b = b | 1<<(7-j)
+				}
+			}
+			result = append(result, b)
+			fmt.Printf("%s ", concatenatedString[i-7:i+1])
+		}
+	}
+	fmt.Println()
+	for _, res := range result {
+		fmt.Printf("%08b ", res)
+	}
+	fmt.Println()
+	return result, nil
+}
+
+/*
 func ElevenBitToBytes(ints []int) []byte {
 	var result []byte
 	var currentByte byte
@@ -27,11 +61,12 @@ func ElevenBitToBytes(ints []int) []byte {
 			settings.VerboseLog("Number", num, "Bitindex", i, "Bit", bit, "ByteIndex", currentByte)
 			bitIndex++
 
-			if bitIndex == 8 || (len(result)*8+8 > len(ints)*11 && i == 0) { // If currentByte is filled
-				settings.DebugLog("Appending byte", currentByte)
-				if bitIndex != 8 {
-					currentByte = currentByte << (8 - bitIndex)
-				}
+			//|| (len(result)*8+8 > len(ints)*11 && i == 0)
+			if bitIndex == 8 { // If currentByte is filled
+				settings.DebugLog("Appending byte ", fmt.Sprintf("%d (%08b)", currentByte, currentByte))
+				// if bitIndex != 8 {
+				// 	currentByte = currentByte << (8 - bitIndex)
+				// }
 				result = append(result, currentByte)
 				currentByte = 0
 				bitIndex = 0
@@ -40,52 +75,47 @@ func ElevenBitToBytes(ints []int) []byte {
 	}
 	return result
 }
+*/
 
-func GetChecksum(entropy []byte, csBits int) byte {
+func GetChecksum(entropy []byte) byte {
 	hash := sha256.Sum256(entropy)
-	// Get the first 4 bits (1 byte) of the hash
-	return hash[0] >> csBits
+	csBits := len(entropy) / 4
+	settings.DebugLog("Checksum", fmt.Sprintf("%0b", hash))
+	return hash[0] >> (8 - csBits)
 }
 
-func EntropyToInts(entropy []byte) ([]int, error) {
-	entropyBits := len(entropy) * 8
-	checksumBits := entropyBits / 32 // checksum is 1/32 of entropy
-
-	// Step 1: Compute checksum and append it to entropy
-	checksum := GetChecksum(entropy, checksumBits)
-	entropyWithChecksum := append(entropy, checksum)
-
-	// Step 2: Collect the indices for the mnemonic
-	numWords := (entropyBits + checksumBits) / 11
-	wordIndexes := make([]int, numWords)
-
-	// Convert to a slice of bits
-	bitSlice := make([]byte, (entropyBits+checksumBits+7)/8)
-	copy(bitSlice, entropyWithChecksum)
-
-	for i := 0; i < numWords; i++ {
-		startBit := i * 11
-		startByte := startBit / 8
-		startOffset := startBit % 8
-
-		// Extract the bits for the 11-bit index
-		var bitSegment uint16 // Use uint16 to avoid overflow
-		for j := 0; j < 11; j++ {
-			byteIndex := startByte + (j / 8)
-			bitIndex := (startOffset + j) % 8
-			if byteIndex < len(bitSlice) {
-				if (bitSlice[byteIndex] & (1 << (7 - bitIndex))) != 0 {
-					bitSegment |= (1 << (10 - j)) // Set the bit in the segment
-				}
-			}
-		}
-
-		wordIndexes[i] = int(bitSegment) // Convert to int after extracting the bits
+/** len in bytes */
+func GenerateMnemonic(len int) []string {
+	src := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(src)
+	res := []byte{}
+	for i := 0; i < len; i++ {
+		// Append last byte of uint256
+		res = append(res, byte(r.Uint64()&255))
 	}
-
-	return wordIndexes, nil
+	return []string{}
 }
 
+func MnemonicFromBytes2(entropy []byte, lang string) (string, error) {
+	words := []string{}
+	nums := BytesToElevenBit2(entropy)
+	for _, num := range nums {
+		words = append(words, wordMapInverse[lang][num])
+	}
+	return strings.Join(words, " "), nil
+}
+
+/*
+func MnemonicFromBytes(entropy []byte, lang string) (string, error) {
+	words := []string{}
+	nums := BytesToElevenBit(entropy)
+	for _, num := range nums {
+		words = append(words, wordMapInverse[lang][num])
+	}
+	return strings.Join(words, " "), nil
+}*/
+
+/*
 func BytesToElevenBit(bytes []byte) []int {
 	var result []int
 	var currentNum int
@@ -106,8 +136,52 @@ func BytesToElevenBit(bytes []byte) []int {
 	}
 	return result
 }
+*/
 
-func Demodulate(mnemonic string, lang string) ([]byte, error) {
+func BytesToElevenBit2(bytes []byte) []int {
+	str := ""
+	for _, b := range bytes {
+		for i := 0; i < 8; i++ {
+			if (b>>(7-i))&1 == 1 {
+				str += "1"
+			} else {
+				str += "0"
+			}
+		}
+	}
+
+	for i, c := range str {
+		fmt.Print(string(c))
+		if i%11 == 0 && i != 0 {
+			fmt.Print(" ")
+		}
+	}
+
+	csBits := len(bytes) / 4
+	bitcount := 0
+	totalLength := len(bytes)*8 + csBits
+	cs := GetChecksum(bytes)
+	fmt.Println("Checksum", fmt.Sprintf("%08b", cs))
+	res := []int{}
+	for bitcount < totalLength {
+		b := 0
+		for i := 0; i < 11; i++ {
+			if bitcount+i >= len(str) {
+				b += int(cs)
+				break
+			} else {
+				if str[bitcount+i] == '1' {
+					b += 1 << (10 - i)
+				}
+			}
+		}
+		res = append(res, b)
+		bitcount += 11
+	}
+	return res
+}
+
+func MnemonicToBytes2(mnemonic string, lang string) ([]byte, error) {
 	_mnemonic := parseMnemonic(mnemonic)
 
 	ints := []int{}
@@ -120,7 +194,12 @@ func Demodulate(mnemonic string, lang string) ([]byte, error) {
 		ints = append(ints, wordIndex)
 	}
 
-	return ElevenBitToBytes(ints), nil
+	res, err := ElevenBitToBytes2(ints)
+	if err != nil {
+		return []byte{}, err
+	}
+	fmt.Println(res)
+	return res, nil
 }
 
 func Assemble(shards []ShardT, lang string) (string, error) {
@@ -132,17 +211,12 @@ func Assemble(shards []ShardT, lang string) (string, error) {
 	if err != nil {
 		return "", err
 	} else {
-		words := []string{}
-		nums := BytesToElevenBit(b)
-		for _, num := range nums {
-			words = append(words, wordMapInverse[lang][num])
-		}
-		return strings.Join(words, " "), nil
+		return MnemonicFromBytes2(b, settings.GetSettings().Lang)
 	}
 }
 
 func Shard(mnemonic string, k int, n int, lang string) ([]ShardT, error) {
-	b, err := Demodulate(mnemonic, lang)
+	b, err := MnemonicToBytes2(mnemonic, lang)
 	if err != nil {
 		return []ShardT{}, err
 	}

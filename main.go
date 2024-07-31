@@ -2,6 +2,7 @@ package main
 
 import (
 	"xxx/cmd"
+	"xxx/crypt"
 	"xxx/settings"
 )
 
@@ -12,4 +13,7 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		settings.FatalLog(err)
 	}
+
+	crypt.LoadWordList(settings.GetSettings().WordListDir)
+
 }
