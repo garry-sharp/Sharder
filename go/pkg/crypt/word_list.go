@@ -9,7 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"xxx/pkg/settings"
+
+	"github.com/garry-sharp/Sharder/pkg/settings"
 )
 
 // Map of language + word to int.

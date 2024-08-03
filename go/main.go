@@ -2,9 +2,10 @@ package main
 
 import (
 	"os"
-	"xxx/cmd"
-	"xxx/pkg/crypt"
-	"xxx/pkg/settings"
+
+	"github.com/garry-sharp/Sharder/cmd"
+	"github.com/garry-sharp/Sharder/pkg/crypt"
+	"github.com/garry-sharp/Sharder/pkg/settings"
 
 	"github.com/spf13/cobra/doc"
 )

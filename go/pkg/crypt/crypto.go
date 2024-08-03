@@ -6,7 +6,8 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-	"xxx/pkg/settings"
+
+	"github.com/garry-sharp/Sharder/pkg/settings"
 
 	"github.com/corvus-ch/shamir"
 	"github.com/tjarratt/babble"

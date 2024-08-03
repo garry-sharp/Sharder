@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"xxx/pkg/crypt"
-	"xxx/pkg/settings"
+
+	"github.com/garry-sharp/Sharder/pkg/crypt"
+	"github.com/garry-sharp/Sharder/pkg/settings"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"

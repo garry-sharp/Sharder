@@ -6,7 +6,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"xxx/pkg/settings"
+
+	"github.com/garry-sharp/Sharder/pkg/settings"
 )
 
 type testpair struct {

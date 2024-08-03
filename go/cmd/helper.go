@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"xxx/pkg/crypt"
-	"xxx/pkg/settings"
+
+	"github.com/garry-sharp/Sharder/pkg/crypt"
+	"github.com/garry-sharp/Sharder/pkg/settings"
 )
 
 func verifyLang(lang string) bool {

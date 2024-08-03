@@ -1,4 +1,4 @@
-module xxx
+module github.com/garry-sharp/Sharder
 
 go 1.21.4
 
