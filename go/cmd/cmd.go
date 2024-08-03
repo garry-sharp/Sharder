@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"regexp"
-	"xxx/crypt"
-	"xxx/settings"
+	"xxx/pkg/crypt"
+	"xxx/pkg/settings"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -50,6 +49,7 @@ func assembleCmd() *cobra.Command {
 			regexp, _ := regexp.Compile("shard_([a-zA-Z0-9-]*).json")
 			shards := []crypt.ShardT{}
 			for _, file := range files {
+				wordListLoadAndVerify()
 				settings.VerboseLog("Checking file", file.Name())
 				if matches := regexp.FindStringSubmatch(file.Name()); len(matches) > 1 {
 					settings.VerboseLog("Found file", matches[1])
@@ -90,6 +90,7 @@ func shardCmd() *cobra.Command {
 		Short: "Generate Shards from mnemonic",
 		Long:  "Generate Shards from mnemonic",
 		Run: func(cmd *cobra.Command, args []string) {
+			wordListLoadAndVerify()
 			settings.DebugLog(mnemonic, k, n)
 			shards, err := crypt.Shard(mnemonic, k, n, settings.GetSettings().Lang)
 			if err != nil {
@@ -136,6 +137,26 @@ func shardCmd() *cobra.Command {
 	return cmd
 }
 
+func downloadCmd() *cobra.Command {
+	var dir string
+	cmd := &cobra.Command{
+		Use:   "download",
+		Short: "Download wordlists",
+		Long:  "Download wordlists",
+		Run: func(cmd *cobra.Command, args []string) {
+			settings.VerboseLog("Downloading wordlists")
+			err := crypt.Download(dir)
+			if err != nil {
+				settings.FatalLog(err)
+			}
+			settings.StdLog("Wordlists downloaded")
+		},
+	}
+
+	cmd.Flags().StringVar(&dir, "dir", "$HOME/bip39wordlists", "The location to download the wordlists")
+	return cmd
+}
+
 func SetupCLI() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "cryptosharder",
@@ -146,10 +167,11 @@ func SetupCLI() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "Enable verbose output")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug output")
 	rootCmd.PersistentFlags().StringVar(&lang, "lang", "en", "The language to use for the mnemonic")
-	rootCmd.PersistentFlags().StringVar(&wordListDir, "wordlists", ".", "The directory containing the wordlists")
+	rootCmd.PersistentFlags().StringVar(&wordListDir, "wordlists", "$HOME/bip39wordlists", "The directory containing the wordlists")
 
 	rootCmd.AddCommand(shardCmd())
 	rootCmd.AddCommand(assembleCmd())
+	rootCmd.AddCommand(downloadCmd())
 
 	rootCmd.PersistentFlags().ParseErrorsWhitelist.UnknownFlags = true
 	rootCmd.PersistentFlags().Parse(os.Args)
@@ -158,16 +180,6 @@ func SetupCLI() *cobra.Command {
 	settings.GetSettings().Lang = lang
 	settings.GetSettings().Debug = debug
 	settings.GetSettings().WordListDir = wordListDir
-
-	err := crypt.LoadWordList(settings.GetSettings().WordListDir)
-	if err != nil {
-		settings.FatalLog(fmt.Sprintf("No wordlists found in dir %s", settings.GetSettings().WordListDir))
-	}
-
-	if !verifyLang(lang) {
-		log.Fatalln("Unsupported language", lang)
-		os.Exit(1)
-	}
 
 	settings.VerboseLog("Verbose mode enabled")
 	settings.VerboseLog("Language set to", lang)

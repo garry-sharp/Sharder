@@ -6,7 +6,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"xxx/settings"
+	"xxx/pkg/settings"
 )
 
 type testpair struct {

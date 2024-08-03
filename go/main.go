@@ -1,9 +1,12 @@
 package main
 
 import (
+	"os"
 	"xxx/cmd"
-	"xxx/crypt"
-	"xxx/settings"
+	"xxx/pkg/crypt"
+	"xxx/pkg/settings"
+
+	"github.com/spf13/cobra/doc"
 )
 
 func main() {
@@ -13,6 +16,10 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		settings.FatalLog(err)
 	}
+
+	f, _ := os.Create("doc")
+	defer f.Close()
+	doc.GenMarkdown(rootCmd, f)
 
 	crypt.LoadWordList(settings.GetSettings().WordListDir)
 

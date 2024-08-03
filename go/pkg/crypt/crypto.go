@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-	"xxx/settings"
+	"xxx/pkg/settings"
 
 	"github.com/corvus-ch/shamir"
 	"github.com/tjarratt/babble"
@@ -18,6 +18,8 @@ type ShardT struct {
 	Data  []byte
 }
 
+// ElevenBitToBytes2 converts a slice of integers representing 11-bit numbers to a byte slice.
+// Each 11-bit number is converted to 8 bits and concatenated to form the resulting byte slice.
 func ElevenBitToBytes2(ints []int) ([]byte, error) {
 	concatenatedString := ""
 	for _, num := range ints {
@@ -48,35 +50,7 @@ func ElevenBitToBytes2(ints []int) ([]byte, error) {
 	return result, nil
 }
 
-/*
-func ElevenBitToBytes(ints []int) []byte {
-	var result []byte
-	var currentByte byte
-	bitIndex := 0
-
-	for _, num := range ints {
-		for i := 10; i >= 0; i-- { // Iterate through each bit of the 11-bit number
-			bit := ((num) >> i) & 1
-			currentByte = (currentByte << 1) | byte(bit)
-			settings.VerboseLog("Number", num, "Bitindex", i, "Bit", bit, "ByteIndex", currentByte)
-			bitIndex++
-
-			//|| (len(result)*8+8 > len(ints)*11 && i == 0)
-			if bitIndex == 8 { // If currentByte is filled
-				settings.DebugLog("Appending byte ", fmt.Sprintf("%d (%08b)", currentByte, currentByte))
-				// if bitIndex != 8 {
-				// 	currentByte = currentByte << (8 - bitIndex)
-				// }
-				result = append(result, currentByte)
-				currentByte = 0
-				bitIndex = 0
-			}
-		}
-	}
-	return result
-}
-*/
-
+// GetChecksum calculates the checksum of a byte slice using SHA256 and returns the first byte of the hash.
 func GetChecksum(entropy []byte) byte {
 	hash := sha256.Sum256(entropy)
 	csBits := len(entropy) / 4
@@ -84,7 +58,8 @@ func GetChecksum(entropy []byte) byte {
 	return hash[0] >> (8 - csBits)
 }
 
-/** len in bytes */
+// GenerateMnemonic generates a mnemonic phrase of the specified length in bytes.
+// It uses a random number generator to generate the bytes.
 func GenerateMnemonic(len int) []string {
 	src := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(src)
@@ -96,6 +71,9 @@ func GenerateMnemonic(len int) []string {
 	return []string{}
 }
 
+// MnemonicFromBytes2 converts a byte slice to a mnemonic phrase using the specified language.
+// It uses the BytesToElevenBit2 function to convert the bytes to a slice of integers,
+// and then maps each integer to a word in the specified language.
 func MnemonicFromBytes2(entropy []byte, lang string) (string, error) {
 	words := []string{}
 	nums := BytesToElevenBit2(entropy)
@@ -105,39 +83,9 @@ func MnemonicFromBytes2(entropy []byte, lang string) (string, error) {
 	return strings.Join(words, " "), nil
 }
 
-/*
-func MnemonicFromBytes(entropy []byte, lang string) (string, error) {
-	words := []string{}
-	nums := BytesToElevenBit(entropy)
-	for _, num := range nums {
-		words = append(words, wordMapInverse[lang][num])
-	}
-	return strings.Join(words, " "), nil
-}*/
-
-/*
-func BytesToElevenBit(bytes []byte) []int {
-	var result []int
-	var currentNum int
-	bitIndex := 0
-
-	for _, b := range bytes {
-		for i := 7; i >= 0; i-- { // Iterate through each bit of the byte
-			bit := (int(b) >> i) & 1
-			currentNum = (currentNum << 1) | bit
-			bitIndex++
-
-			if bitIndex == 11 || (len(result)*11+11 > len(bytes)*8 && i == 0) { // If currentNum is filled
-				result = append(result, currentNum)
-				currentNum = 0
-				bitIndex = 0
-			}
-		}
-	}
-	return result
-}
-*/
-
+// BytesToElevenBit2 converts a byte slice to a slice of integers representing 11-bit numbers.
+// Each byte is converted to 8 bits and concatenated to form a binary string.
+// The binary string is then split into 11-bit segments, which are converted to integers.
 func BytesToElevenBit2(bytes []byte) []int {
 	str := ""
 	for _, b := range bytes {
@@ -181,6 +129,10 @@ func BytesToElevenBit2(bytes []byte) []int {
 	return res
 }
 
+// MnemonicToBytes2 converts a mnemonic phrase to a byte slice using the specified language.
+// It uses the parseMnemonic function to split the mnemonic phrase into individual words,
+// and then maps each word to an index in the specified language's word map.
+// The resulting indices are converted to a byte slice using the ElevenBitToBytes2 function.
 func MnemonicToBytes2(mnemonic string, lang string) ([]byte, error) {
 	_mnemonic := parseMnemonic(mnemonic)
 
@@ -202,6 +154,8 @@ func MnemonicToBytes2(mnemonic string, lang string) ([]byte, error) {
 	return res, nil
 }
 
+// Assemble combines the data shards into a single byte slice using Shamir's Secret Sharing algorithm,
+// and then converts the byte slice to a mnemonic phrase using the specified language.
 func Assemble(shards []ShardT, lang string) (string, error) {
 	_s := make(map[byte][]byte)
 	for _, shard := range shards {
@@ -215,6 +169,10 @@ func Assemble(shards []ShardT, lang string) (string, error) {
 	}
 }
 
+// Shard splits a mnemonic phrase into data shards using Shamir's Secret Sharing algorithm.
+// It converts the mnemonic phrase to a byte slice using the specified language,
+// and then splits the byte slice into data shards using the shamir.Split function.
+// Each data shard is assigned a unique ID and an alias generated by the babble package.
 func Shard(mnemonic string, k int, n int, lang string) ([]ShardT, error) {
 	b, err := MnemonicToBytes2(mnemonic, lang)
 	if err != nil {

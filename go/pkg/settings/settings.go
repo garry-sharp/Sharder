@@ -3,6 +3,7 @@ package settings
 import (
 	"fmt"
 	"log"
+	"runtime/debug"
 	"time"
 )
 
@@ -55,6 +56,6 @@ func ErrLog(txt ...any) {
 }
 
 func FatalLog(txt ...interface{}) {
-	fmt.Println("FATAL")
+	debug.PrintStack()
 	log.Fatalln(append([]interface{}{time.Now().Format(tzFormat), " - FATAL: "}, txt...)...)
 }
