@@ -65,6 +65,13 @@ func GetWordIndex(lang, word string) (int, error) {
 	return wordMap[lang][word], nil
 }
 
+func GetWordList(lang string) ([]string, error) {
+	if _, ok := wordMapInverse[lang]; !ok {
+		return nil, fmt.Errorf("language %s not supported", lang)
+	}
+	return wordMapInverse[lang], nil
+}
+
 func GetSupportedLanguages() []string {
 	var langs []string
 	for lang := range wordMap {

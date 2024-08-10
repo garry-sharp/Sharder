@@ -91,7 +91,26 @@ func shardCmd() *cobra.Command {
 		Short: "Generate Shards from mnemonic",
 		Long:  "Generate Shards from mnemonic",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			if lang == "" {
+				lang = crypt.ReadLang()
+				fmt.Println(lang)
+			}
+
 			wordListLoadAndVerify()
+
+			if mnemonic == "" {
+				wordList, err := crypt.GetWordList(lang)
+				if err != nil {
+					settings.FatalLog(err)
+				}
+				mnemonic, err := crypt.ReadMnemonic(wordList)
+				if err != nil {
+					settings.FatalLog(err)
+				}
+				fmt.Println(mnemonic)
+			}
+
 			settings.DebugLog(mnemonic, k, n)
 			shards, err := crypt.Shard(mnemonic, k, n, settings.GetSettings().Lang)
 			if err != nil {
@@ -128,12 +147,13 @@ func shardCmd() *cobra.Command {
 
 	cmd.Flags().BoolVar(&save, "save", false, "Save the shards to a file")
 	cmd.Flags().StringVarP(&mnemonic, "mnemonic", "m", "", "The mnemonic to be sharded")
-	cmd.Flags().IntVarP(&k, "parts", "k", 0, "The minimum number of shards required to reconstruct the mnemonic")
-	cmd.Flags().IntVarP(&n, "threshold", "n", 0, "The total number of shards to generate")
+	// TODO make this readable
+	cmd.Flags().IntVarP(&k, "parts", "k", 5, "The minimum number of shards required to reconstruct the mnemonic")
+	cmd.Flags().IntVarP(&n, "threshold", "n", 3, "The total number of shards to generate")
 
-	cmd.MarkFlagRequired("mnemonic")
-	cmd.MarkFlagRequired("k")
-	cmd.MarkFlagRequired("n")
+	// cmd.MarkFlagRequired("mnemonic")
+	// cmd.MarkFlagRequired("k")
+	// cmd.MarkFlagRequired("n")
 
 	return cmd
 }
@@ -167,7 +187,7 @@ func SetupCLI() *cobra.Command {
 
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "Enable verbose output")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug output")
-	rootCmd.PersistentFlags().StringVar(&lang, "lang", "en", "The language to use for the mnemonic")
+	rootCmd.PersistentFlags().StringVar(&lang, "lang", "", "The language to use for the mnemonic")
 	rootCmd.PersistentFlags().StringVar(&wordListDir, "wordlists", "$HOME/bip39wordlists", "The directory containing the wordlists")
 
 	rootCmd.AddCommand(shardCmd())
@@ -176,6 +196,11 @@ func SetupCLI() *cobra.Command {
 
 	rootCmd.PersistentFlags().ParseErrorsWhitelist.UnknownFlags = true
 	rootCmd.PersistentFlags().Parse(os.Args)
+
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	rootCmd.SetHelpCommand(&cobra.Command{
+		Hidden: true,
+	})
 
 	settings.GetSettings().Verbose = verbose
 	settings.GetSettings().Lang = lang

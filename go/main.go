@@ -20,6 +20,7 @@ func main() {
 
 	f, _ := os.Create("doc")
 	defer f.Close()
+	doc.GenMarkdownTree(rootCmd, "../docs")
 	doc.GenMarkdown(rootCmd, f)
 
 	crypt.LoadWordList(settings.GetSettings().WordListDir)

@@ -8,4 +8,10 @@ Sharder is a lightweight command-line tool designed to simplify the process of s
 
 The inspiration for this project was simply the question "what would happen to your crypto if you suddenly died?", well the answer is quite clear, you can either trust other people with your keys or your loved ones will lose their crypto.
 
+![image](docs/Shamir.png)
+
 The shamir secret sharing algorithm is an elegant technique that uses coordinates along a polynomial to encode the secret. 2 properties are defined, a threshold and a total which generate the `shares`. So long as the threshold number of shares are presented back to the application, a secret can be recovered, without disclosing any information of the secret in the shares themselves.
+
+## CLI
+
+[See Here](docs/cryptosharder.md) for CLI documentation
