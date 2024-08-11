@@ -8,6 +8,7 @@ import (
 	"github.com/garry-sharp/Sharder/cmd/reader"
 	"github.com/garry-sharp/Sharder/pkg/crypt"
 	"github.com/garry-sharp/Sharder/pkg/settings"
+	"github.com/manifoldco/promptui"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -43,7 +44,15 @@ func assembleCmd() *cobra.Command {
 		Short: "Assemble mnemonic from shards",
 		Long:  "Assemble mnemonic from shards",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			if lang == "" {
+				lang = reader.ReadLang()
+				fmt.Println(lang)
+			}
+
 			wordListLoadAndVerify()
+			settings.GetSettings().Lang = lang
+
 			shards := []crypt.ShardT{}
 
 			if dir != "" {
@@ -103,6 +112,7 @@ func shardCmd() *cobra.Command {
 			}
 
 			wordListLoadAndVerify()
+			settings.GetSettings().Lang = lang
 
 			if k == 0 {
 				var err error
@@ -152,6 +162,18 @@ func shardCmd() *cobra.Command {
 			}
 
 			tb.Render()
+
+			if !save {
+				p := promptui.Select{Label: "Would you like to save the shards to a file?", Items: []string{"Yes", "No"}}
+				o, _, err := p.Run()
+				if err != nil {
+					settings.ErrLog(err)
+					os.Exit(1)
+				}
+				if o == 0 {
+					save = true
+				}
+			}
 
 			if save {
 				settings.StdLog("Saving shards to file")

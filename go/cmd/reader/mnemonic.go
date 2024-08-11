@@ -6,13 +6,19 @@ import (
 	"os"
 	"strings"
 
+	"github.com/manifoldco/promptui"
 	"golang.org/x/term"
 )
 
 func ReadLang() string {
-	lang := ""
-	fmt.Print("Please select your language: ")
-	fmt.Scan(&lang)
+	allowedLangs := []string{"en", "fr"}
+	langPrompt := promptui.Select{Label: "Please select your language: ", Items: allowedLangs}
+	_, lang, err := langPrompt.Run()
+	if err != nil {
+		fmt.Println("Prompt failed")
+		os.Exit(1)
+	}
+	fmt.Println("You selected", lang)
 	return lang
 }
 
