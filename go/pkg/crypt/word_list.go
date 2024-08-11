@@ -144,7 +144,7 @@ func folderParser(folder string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println(folder)
+	//fmt.Println(folder)
 
 	_, err = os.Stat(folder)
 	if os.IsNotExist(err) {

@@ -40,14 +40,14 @@ func ElevenBitToBytes2(ints []int) ([]byte, error) {
 				}
 			}
 			result = append(result, b)
-			fmt.Printf("%s ", concatenatedString[i-7:i+1])
+			//fmt.Printf("%s ", concatenatedString[i-7:i+1])
 		}
 	}
-	fmt.Println()
-	for _, res := range result {
-		fmt.Printf("%08b ", res)
-	}
-	fmt.Println()
+	//fmt.Println()
+	// for _, res := range result {
+	// 	fmt.Printf("%08b ", res)
+	// }
+	// fmt.Println()
 	return result, nil
 }
 
@@ -55,7 +55,7 @@ func ElevenBitToBytes2(ints []int) ([]byte, error) {
 func GetChecksum(entropy []byte) byte {
 	hash := sha256.Sum256(entropy)
 	csBits := len(entropy) / 4
-	settings.DebugLog("Checksum", fmt.Sprintf("%0b", hash))
+	//settings.DebugLog("Checksum", fmt.Sprintf("%0b", hash))
 	return hash[0] >> (8 - csBits)
 }
 
@@ -99,18 +99,18 @@ func BytesToElevenBit2(bytes []byte) []int {
 		}
 	}
 
-	for i, c := range str {
-		fmt.Print(string(c))
-		if i%11 == 0 && i != 0 {
-			fmt.Print(" ")
-		}
-	}
+	// for i, c := range str {
+	// 	fmt.Print(string(c))
+	// 	if i%11 == 0 && i != 0 {
+	// 		fmt.Print(" ")
+	// 	}
+	// }
 
 	csBits := len(bytes) / 4
 	bitcount := 0
 	totalLength := len(bytes)*8 + csBits
 	cs := GetChecksum(bytes)
-	fmt.Println("Checksum", fmt.Sprintf("%08b", cs))
+	//fmt.Println("Checksum", fmt.Sprintf("%08b", cs))
 	res := []int{}
 	for bitcount < totalLength {
 		b := 0
@@ -151,7 +151,7 @@ func MnemonicToBytes2(mnemonic string, lang string) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
-	fmt.Println(res)
+	//fmt.Println(res)
 	return res, nil
 }
 

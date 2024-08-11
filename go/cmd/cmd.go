@@ -43,41 +43,45 @@ func assembleCmd() *cobra.Command {
 		Short: "Assemble mnemonic from shards",
 		Long:  "Assemble mnemonic from shards",
 		Run: func(cmd *cobra.Command, args []string) {
-			files, err := os.ReadDir(dir)
-			if err != nil {
-				settings.FatalLog(err)
-			}
-
-			regexp, _ := regexp.Compile("shard_([a-zA-Z0-9-]*).json")
+			wordListLoadAndVerify()
 			shards := []crypt.ShardT{}
-			for _, file := range files {
-				wordListLoadAndVerify()
-				settings.VerboseLog("Checking file", file.Name())
-				if matches := regexp.FindStringSubmatch(file.Name()); len(matches) > 1 {
-					settings.VerboseLog("Found file", matches[1])
-					d, err := os.ReadFile(dir + "/" + file.Name())
-					if err != nil {
-						settings.FatalLog(err)
-					}
-					shard, err := crypt.JSONToShard(d)
-					if err != nil {
-						settings.FatalLog(err)
-					}
-					//TODO check alias vs filename
-					shards = append(shards, shard)
-					settings.StdLog("Loaded shard", shard.Alias)
+
+			if dir != "" {
+				files, err := os.ReadDir(dir)
+				if err != nil {
+					settings.FatalLog(err)
 				}
+				regexp, _ := regexp.Compile("shard_([a-zA-Z0-9-]*).json")
+				for _, file := range files {
+					settings.VerboseLog("Checking file", file.Name())
+					if matches := regexp.FindStringSubmatch(file.Name()); len(matches) > 1 {
+						settings.VerboseLog("Found file", matches[1])
+						d, err := os.ReadFile(dir + "/" + file.Name())
+						if err != nil {
+							settings.FatalLog(err)
+						}
+						shard, err := crypt.JSONToShard(d)
+						if err != nil {
+							settings.FatalLog(err)
+						}
+						//TODO check alias vs filename
+						shards = append(shards, shard)
+						settings.StdLog("Loaded shard", shard.Alias)
+					}
+				}
+			} else {
+				shards = reader.AddShardPrompt(shards)
 			}
 
 			mnemonic, err := crypt.Assemble(shards, settings.GetSettings().Lang)
 			if err != nil {
 				settings.FatalLog(err)
 			}
-			settings.StdLog("Mnemonic assembled:", mnemonic)
+			fmt.Println("Mnemonic assembled:\n", mnemonic)
 		},
 	}
 
-	cmd.Flags().StringVarP(&dir, "dir", "d", ".", "The directory containing the shards")
+	cmd.Flags().StringVarP(&dir, "dir", "d", "", "The directory containing the shards")
 	return cmd
 }
 
@@ -145,7 +149,6 @@ func shardCmd() *cobra.Command {
 
 			for i, shard := range shards {
 				tb.Append([]string{fmt.Sprintf("%d", i+1), shard.Alias, fmt.Sprintf("0x%02x", shard.Id), fmt.Sprintf("0x%0x", shard.Data)})
-				//settings.StdLog(fmt.Sprintf("Shard #%d (%s): id - %x, value - %x", i, shard.Alias, shard.Id, shard.Data))
 			}
 
 			tb.Render()
