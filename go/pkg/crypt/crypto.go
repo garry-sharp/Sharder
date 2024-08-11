@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/garry-sharp/Sharder/pkg/crypt/alias"
 	"github.com/garry-sharp/Sharder/pkg/settings"
 
 	"github.com/corvus-ch/shamir"
-	"github.com/tjarratt/babble"
 )
 
 type ShardT struct {
@@ -184,9 +184,9 @@ func Shard(mnemonic string, k int, n int, lang string) ([]ShardT, error) {
 		return []ShardT{}, err
 	} else {
 		shards := []ShardT{}
-		b := babble.NewBabbler()
 		for i, shard := range ans {
-			shards = append(shards, ShardT{Alias: b.Babble(), Id: i, Data: shard})
+			name := alias.GetAlias(i, shard)
+			shards = append(shards, ShardT{Alias: name, Id: i, Data: shard})
 		}
 		return shards, nil
 	}

@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/garry-sharp/Sharder/cmd/reader"
 	"github.com/garry-sharp/Sharder/pkg/crypt"
 	"github.com/garry-sharp/Sharder/pkg/settings"
 
@@ -93,25 +94,45 @@ func shardCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 
 			if lang == "" {
-				lang = crypt.ReadLang()
+				lang = reader.ReadLang()
 				fmt.Println(lang)
 			}
 
 			wordListLoadAndVerify()
 
-			if mnemonic == "" {
-				wordList, err := crypt.GetWordList(lang)
+			if k == 0 {
+				var err error
+				k, err = reader.ReadK()
 				if err != nil {
-					settings.FatalLog(err)
+					settings.ErrLog(err)
+					os.Exit(1)
 				}
-				mnemonic, err := crypt.ReadMnemonic(wordList)
-				if err != nil {
-					settings.FatalLog(err)
-				}
-				fmt.Println(mnemonic)
 			}
 
-			settings.DebugLog(mnemonic, k, n)
+			if n == 0 {
+				var err error
+				n, err = reader.ReadN(k)
+				if err != nil {
+					settings.ErrLog(err)
+					os.Exit(1)
+				}
+			}
+
+			if mnemonic == "" {
+				var err error
+				wordList, err := crypt.GetWordList(lang)
+				if err != nil {
+					settings.ErrLog(err)
+					os.Exit(1)
+				}
+				mnemonic, err = reader.ReadMnemonic(wordList)
+				if err != nil {
+					settings.ErrLog(err)
+					os.Exit(1)
+				}
+			}
+
+			//settings.DebugLog(mnemonic, k, n)
 			shards, err := crypt.Shard(mnemonic, k, n, settings.GetSettings().Lang)
 			if err != nil {
 				settings.FatalLog(err)
@@ -147,9 +168,8 @@ func shardCmd() *cobra.Command {
 
 	cmd.Flags().BoolVar(&save, "save", false, "Save the shards to a file")
 	cmd.Flags().StringVarP(&mnemonic, "mnemonic", "m", "", "The mnemonic to be sharded")
-	// TODO make this readable
-	cmd.Flags().IntVarP(&k, "parts", "k", 5, "The minimum number of shards required to reconstruct the mnemonic")
-	cmd.Flags().IntVarP(&n, "threshold", "n", 3, "The total number of shards to generate")
+	cmd.Flags().IntVarP(&k, "threshold", "k", 0, "The minimum number of shards required to reconstruct the mnemonic")
+	cmd.Flags().IntVarP(&n, "parts", "n", 0, "The total number of shards to generate")
 
 	// cmd.MarkFlagRequired("mnemonic")
 	// cmd.MarkFlagRequired("k")
