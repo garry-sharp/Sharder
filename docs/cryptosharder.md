@@ -16,6 +16,10 @@ A crypto mnemonic sharder
 *                                               *
 *************************************************
 
+```
+cryptosharder [flags]
+```
+
 ### Options
 
 ```

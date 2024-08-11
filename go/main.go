@@ -1,13 +1,8 @@
 package main
 
 import (
-	"os"
-
 	"github.com/garry-sharp/Sharder/cmd"
-	"github.com/garry-sharp/Sharder/pkg/crypt"
 	"github.com/garry-sharp/Sharder/pkg/settings"
-
-	"github.com/spf13/cobra/doc"
 )
 
 func main() {
@@ -18,11 +13,12 @@ func main() {
 		settings.FatalLog(err)
 	}
 
-	f, _ := os.Create("doc")
-	defer f.Close()
-	doc.GenMarkdownTree(rootCmd, "../docs")
-	doc.GenMarkdown(rootCmd, f)
+	// f, _ := os.Create("doc")
+	// defer f.Close()
 
-	crypt.LoadWordList(settings.GetSettings().WordListDir)
+	// doc.GenMarkdownTree(rootCmd, "../docs")
+	// doc.GenMarkdown(rootCmd, f)
+
+	// crypt.LoadWordList(settings.GetSettings().WordListDir)
 
 }

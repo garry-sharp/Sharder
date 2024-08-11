@@ -228,6 +228,23 @@ func SetupCLI() *cobra.Command {
 		Use:   "cryptosharder",
 		Short: "A crypto mnemonic sharder",
 		Long:  asciiArt,
+		Run: func(cmd *cobra.Command, args []string) {
+			prompt := promptui.Select{Label: "What would you like to do?", Items: []string{"Shard", "Assemble", "Download Wordlists"}}
+			o, _, err := prompt.Run()
+			if err != nil {
+				settings.ErrLog(err)
+				os.Exit(1)
+			}
+
+			switch o {
+			case 0:
+				shardCmd().Run(cmd, args)
+			case 1:
+				assembleCmd().Run(cmd, args)
+			case 2:
+				downloadCmd().Run(cmd, args)
+			}
+		},
 	}
 
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "Enable verbose output")
