@@ -58,3 +58,14 @@ func parseMnemonic(mnemonic string) []string {
 	}
 	return result
 }
+
+func VerifyMnemonic(mnemonic string, lang string) error {
+	_mnemonic := parseMnemonic(mnemonic)
+	for _, word := range _mnemonic {
+		_, notFoundError := GetWordIndex(lang, word)
+		if notFoundError != nil {
+			return notFoundError
+		}
+	}
+	return nil
+}

@@ -10,18 +10,24 @@ import (
 	"github.com/garry-sharp/Sharder/pkg/settings"
 	"github.com/manifoldco/promptui"
 
+	"embed"
+
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
 var asciiArt string
 
+//go:embed ascii/ascii.txt
+var asciiArtDF embed.FS
+
 func init() {
 	wd, err := os.Getwd()
+	fmt.Println(wd)
 	if err != nil {
 		settings.FatalLog(err)
 	}
-	f, err := os.ReadFile(wd + "/ascii/ascii.txt")
+	f, err := asciiArtDF.ReadFile("ascii/ascii.txt")
 	if err != nil {
 		settings.FatalLog(err)
 	}

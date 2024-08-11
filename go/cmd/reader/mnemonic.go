@@ -196,6 +196,8 @@ func ReadMnemonic(wordList []string) (string, error) {
 			}
 		}
 
+		fmt.Printf("\r: %s", strings.Repeat(" ", clearLength))
+		fmt.Printf("\r: %s\r\n", strings.Join(append(words, word), " "))
 		return strings.Join(words, " "), nil
 	} else {
 		return "", fmt.Errorf("Invalid mnemonic length")

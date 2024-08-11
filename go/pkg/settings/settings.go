@@ -8,7 +8,7 @@ import (
 )
 
 var settings *Settings
-var tzFormat string = "yyyy-MM-dd'T'HH:mm:ssZ"
+var tzFormat string = "2006-01-02T15:04:05.000-07:00"
 
 type Settings struct {
 	Verbose     bool
