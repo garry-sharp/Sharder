@@ -1,4 +1,13 @@
-This repo is still in active development
+<div align="center">
+
+![Bitcoin](https://img.shields.io/badge/Bitcoin-000?style=for-the-badge&logo=bitcoin&logoColor=white)
+![Ethereum](https://img.shields.io/badge/Ethereum-3C3C3D?style=for-the-badge&logo=Ethereum&logoColor=white)
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+
+[![codecov](https://codecov.io/github/garry-sharp/Sharder/graph/badge.svg?token=IWGRIG1DDF)](https://codecov.io/github/garry-sharp/Sharder)
+[![build_and_test](https://github.com/garry-sharp/Sharder/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/garry-sharp/Sharder/actions/workflows/build_and_test.yml)
+
+</div>
 
 # Sharder
 
