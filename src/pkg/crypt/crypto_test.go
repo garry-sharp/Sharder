@@ -2,7 +2,6 @@ package crypt
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -59,7 +58,6 @@ func TestMain(m *testing.M) {
 
 func TestE2E1(t *testing.T) {
 	r, _ := MnemonicFromBytes2(tests[2].bytestring, "en")
-	//fmt.Println(BytesToElevenBit2(tests[2].bytestring))
 	if !reflect.DeepEqual(r, tests[2].mnemonic) {
 		t.Errorf("Expected result: %v, but got: %v", tests[2].mnemonic, r)
 	}
@@ -89,9 +87,7 @@ func TestGetWordIndex(t *testing.T) {
 // TODO more tests
 func TestDemodulate(t *testing.T) {
 
-	result, err := MnemonicToBytes2(tests[0].mnemonic, "en")
-	fmt.Println(result)
-	fmt.Println(err)
+	result, _ := MnemonicToBytes2(tests[0].mnemonic, "en")
 
 	if !bytes.Equal(result, tests[0].bytestring) {
 		t.Errorf("Expected result: %v, but got: %v", tests[0].bytestring, result)
@@ -124,7 +120,4 @@ func TestParseMnemonic(t *testing.T) {
 
 func TestElevenBitToBytes2(t *testing.T) {
 	ElevenBitToBytes2(tests[0].mnemonicindex)
-	fmt.Println("Expected: ")
-	fmt.Printf("%08b ", tests[0].bytestring)
-	fmt.Println()
 }

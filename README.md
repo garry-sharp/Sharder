@@ -13,6 +13,8 @@
 
 Sharder is a lightweight command-line tool designed to simplify the process of sharding mnemonics. With Sharder, you can effortlessly split your mnemonics into smaller, more manageable chunks, making it easier to organize and store sensitive information securely. Whether you're working with cryptographic keys, passwords, or any other mnemonic-based data, Sharder provides a seamless solution for dividing and distributing your mnemonics across multiple locations. Take control of your mnemonic sharding process with Sharder and ensure the utmost security for your valuable data.
 
+This tool is free for anyone to use. If you like it please consider donating [bitcoin](bitcoin:bc1qvt37xsc3980zk3nvg44dn92vg2whq73xzsxlna) or [ethereum](ethereum:0x61ae64504549432a94D09E0C258c981698253F7A)
+
 ## Main Use Case & Background
 
 The inspiration for this project was simply the question "what would happen to your crypto if you suddenly died?", well the answer is quite clear, you can either trust other people with your keys or your loved ones will lose their crypto.
@@ -24,3 +26,9 @@ The shamir secret sharing algorithm is an elegant technique that uses coordinate
 ## CLI
 
 [See Here](docs/cryptosharder.md) for CLI documentation
+
+## Not supported
+
+The following are a list of features that aren't supported
+
+-   Mnemonics with passphrases
