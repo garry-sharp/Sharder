@@ -27,7 +27,13 @@ jobs:
                   cd src
                   go build ./...
 
-            - name: Test
+            - name: Test with coverage
               run: |
                   cd src
-                  go test ./...
+                  go test ./... -coverprofile=coverage.out
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v4
+              with:
+                  file: coverage.out
+                  token: ${{ secrets.CODECOV_TOKEN }}
