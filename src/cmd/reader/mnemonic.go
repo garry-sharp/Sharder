@@ -6,13 +6,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/garry-sharp/Sharder/pkg/crypt"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/term"
 )
 
 func ReadLang() string {
-	allowedLangs := []string{"en", "fr"}
-	langPrompt := promptui.Select{Label: "Please select your language: ", Items: allowedLangs}
+	fmt.Println(crypt.GetSupportedLanguages())
+	langPrompt := promptui.Select{Label: "Please select your language: ", Items: crypt.GetSupportedLanguages()}
 	_, lang, err := langPrompt.Run()
 	if err != nil {
 		fmt.Println("Prompt failed")

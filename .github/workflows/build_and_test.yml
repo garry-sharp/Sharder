@@ -23,7 +23,11 @@ jobs:
                   go-version: "1.21"
 
             - name: Build
-              run: go build -v go/...
+              run: |
+                  cd src
+                  go build ./...
 
             - name: Test
-              run: go test -v go/...
+              run: |
+                  cd src
+                  go test ./...

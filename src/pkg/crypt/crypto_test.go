@@ -43,18 +43,10 @@ var tests = []testpair{
 
 func TestMain(m *testing.M) {
 	// Run setup code here
-
-	fmt.Println("Setting up tests")
-	fmt.Println("Adding Settings")
 	settings.SetSettings(&settings.Settings{
-		Verbose:     false,
-		Debug:       true,
-		Lang:        "en",
-		WordListDir: "../wordlists",
+		Verbose: false,
+		Debug:   true,
 	})
-
-	fmt.Println("Loading wordlist")
-	LoadWordList("../wordlists")
 
 	// Run all the tests
 	exitCode := m.Run()
@@ -67,7 +59,7 @@ func TestMain(m *testing.M) {
 
 func TestE2E1(t *testing.T) {
 	r, _ := MnemonicFromBytes2(tests[2].bytestring, "en")
-	fmt.Println(BytesToElevenBit2(tests[2].bytestring))
+	//fmt.Println(BytesToElevenBit2(tests[2].bytestring))
 	if !reflect.DeepEqual(r, tests[2].mnemonic) {
 		t.Errorf("Expected result: %v, but got: %v", tests[2].mnemonic, r)
 	}
@@ -106,22 +98,10 @@ func TestDemodulate(t *testing.T) {
 	}
 }
 
-func TestChecksum(t *testing.T) {
-	result := GetChecksum(tests[0].bytestring)
-	if result != tests[0].checksum {
-		t.Errorf("Expected result: %08b, but got: %08b", tests[0].checksum, result)
-	}
-}
-
-// func TestBytesToElevenBit(t *testing.T) {
-
-// 	bytes := []byte{0b01110111, 0b00100100, 0b10011000}
-// 	expectedResult := []int{0b01110111000, 0b10010011000, 0b10011000000}
-
-// 	result := BytesToElevenBi(bytes)
-
-// 	if !reflect.DeepEqual(result, expectedResult) {
-// 		t.Errorf("Expected result: %v, but got: %v", expectedResult, result)
+// func TestChecksum(t *testing.T) {
+// 	result := GetChecksum(tests[0].bytestring)
+// 	if result != tests[0].checksum {
+// 		t.Errorf("Expected result: %08b, but got: %08b", tests[0].checksum, result)
 // 	}
 // }
 
@@ -141,20 +121,6 @@ func TestParseMnemonic(t *testing.T) {
 		t.Errorf("Expected result: %v, but got: %v", expectedResult, result2)
 	}
 }
-
-// func TestEntropyToMnemonic(t *testing.T) {
-// 	entropy := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-// 	expectedResult := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
-
-// 	result, err := EntropyToInts(entropy)
-// 	if err != nil {
-// 		t.Errorf("Error: %v", err)
-// 	}
-
-// 	if !reflect.DeepEqual(result, expectedResult) {
-// 		t.Errorf("Expected result: %v, but got: %v", expectedResult, result)
-// 	}
-// }
 
 func TestElevenBitToBytes2(t *testing.T) {
 	ElevenBitToBytes2(tests[0].mnemonicindex)

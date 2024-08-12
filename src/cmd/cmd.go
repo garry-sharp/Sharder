@@ -9,6 +9,7 @@ import (
 	"github.com/garry-sharp/Sharder/pkg/crypt"
 	"github.com/garry-sharp/Sharder/pkg/settings"
 	"github.com/manifoldco/promptui"
+	"github.com/savioxavier/termlink"
 
 	"embed"
 
@@ -209,33 +210,18 @@ func shardCmd() *cobra.Command {
 	return cmd
 }
 
-func downloadCmd() *cobra.Command {
-	var dir string
-	cmd := &cobra.Command{
-		Use:   "download",
-		Short: "Download wordlists",
-		Long:  "Download wordlists",
-		Run: func(cmd *cobra.Command, args []string) {
-			settings.VerboseLog("Downloading wordlists")
-			err := crypt.Download(dir)
-			if err != nil {
-				settings.FatalLog(err)
-			}
-			settings.StdLog("Wordlists downloaded")
-		},
-	}
-
-	cmd.Flags().StringVar(&dir, "dir", "$HOME/bip39wordlists", "The location to download the wordlists")
-	return cmd
-}
-
 func SetupCLI() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "cryptosharder",
 		Short: "A crypto mnemonic sharder",
 		Long:  asciiArt,
 		Run: func(cmd *cobra.Command, args []string) {
-			prompt := promptui.Select{Label: "What would you like to do?", Items: []string{"Shard", "Assemble", "Download Wordlists"}}
+
+			fmt.Println(asciiArt)
+			fmt.Println("\nWelcome to Sharder, a crypto mnemonic sharder")
+			donate := termlink.ColorLink("DONATING HERE", "http://google.com", "blue")
+			fmt.Println("This tool has been made for free, please consider supporting this project by", donate)
+			prompt := promptui.Select{Label: "What would you like to do?", Items: []string{"Shard", "Assemble", "Exit"}}
 			o, _, err := prompt.Run()
 			if err != nil {
 				settings.ErrLog(err)
@@ -248,7 +234,8 @@ func SetupCLI() *cobra.Command {
 			case 1:
 				assembleCmd().Run(cmd, args)
 			case 2:
-				downloadCmd().Run(cmd, args)
+				fmt.Println("Thank you for using Sharder, please consider supporting this project by", donate)
+				os.Exit(0)
 			}
 		},
 	}
@@ -260,7 +247,6 @@ func SetupCLI() *cobra.Command {
 
 	rootCmd.AddCommand(shardCmd())
 	rootCmd.AddCommand(assembleCmd())
-	rootCmd.AddCommand(downloadCmd())
 
 	rootCmd.PersistentFlags().ParseErrorsWhitelist.UnknownFlags = true
 	rootCmd.PersistentFlags().Parse(os.Args)
@@ -273,7 +259,6 @@ func SetupCLI() *cobra.Command {
 	settings.GetSettings().Verbose = verbose
 	settings.GetSettings().Lang = lang
 	settings.GetSettings().Debug = debug
-	settings.GetSettings().WordListDir = wordListDir
 
 	settings.VerboseLog("Verbose mode enabled")
 	settings.VerboseLog("Language set to", lang)

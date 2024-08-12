@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -20,9 +19,9 @@ func verifyLang(lang string) bool {
 }
 
 func wordListLoadAndVerify() {
-	err := crypt.LoadWordList(settings.GetSettings().WordListDir)
+	err := crypt.LoadWordLists()
 	if err != nil {
-		settings.FatalLog(fmt.Sprintf("No wordlists found in dir %s", settings.GetSettings().WordListDir))
+		settings.FatalLog(err)
 	}
 
 	if !verifyLang(lang) {

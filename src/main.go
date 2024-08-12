@@ -19,6 +19,4 @@ func main() {
 	// doc.GenMarkdownTree(rootCmd, "../docs")
 	// doc.GenMarkdown(rootCmd, f)
 
-	// crypt.LoadWordList(settings.GetSettings().WordListDir)
-
 }
