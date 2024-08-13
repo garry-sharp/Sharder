@@ -2,6 +2,7 @@ package crypt
 
 import (
 	"encoding/hex"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -36,5 +37,23 @@ func TestShardToJson(t *testing.T) {
 	if result != expected {
 		t.Errorf("Expected result: %v, but got: %v", expected, result)
 	}
+}
 
+func TestJSONToShard(t *testing.T) {
+	input := []byte(`{
+		"alias": "oddball-piano",
+		"id": "0x03",
+		"data": "0xd3d5fce5fda6d0a4f482eb0fc2aba67b"
+		}`)
+
+	expected := ShardT{
+		Alias: "oddball-piano",
+		Id:    hexDec("0x03")[0],
+		Data:  hexDec("0xd3d5fce5fda6d0a4f482eb0fc2aba67b"),
+	}
+
+	result, _ := JSONToShard(input)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected result: %v, but got: %v", expected, result)
+	}
 }
