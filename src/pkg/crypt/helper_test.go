@@ -57,3 +57,18 @@ func TestJSONToShard(t *testing.T) {
 		t.Errorf("Expected result: %v, but got: %v", expected, result)
 	}
 }
+
+func TestVerifyMnemonic(t *testing.T) {
+	mnemonic1 := "knee duty chat example law lawsuit observe total spin thrive shove like"
+	mnemonic2 := "knee duty chat example law lawsuit observe total spin thrive shove able"
+	mnemonic3 := "knee duty chat example law lawsuit observe total spin thrive shove xxx"
+
+	r1 := VerifyMnemonic(mnemonic1, "en")
+	r2 := VerifyMnemonic(mnemonic2, "en")
+	r3 := VerifyMnemonic(mnemonic3, "en")
+
+	if !reflect.DeepEqual([]bool{true, false, false}, []bool{r1, r2, r3}) {
+		t.Errorf("Expected result: %v, but got: %v", []bool{true, false, false}, []bool{r1, r2, r3})
+	}
+
+}
