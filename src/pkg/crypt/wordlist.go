@@ -49,6 +49,7 @@ func LoadWordLists() error {
 		expRes := r.FindStringSubmatch(fname)
 		lang := string(expRes[2])
 		wordMap[lang] = make(map[string]int)
+		wordMapInverse[lang] = []string{}
 		wordBytes, err := wordlists.ReadFile(path)
 		if err != nil {
 			return err
@@ -56,8 +57,10 @@ func LoadWordLists() error {
 		words := strings.Split(string(wordBytes), "\n")
 
 		for i, word := range words {
-			wordMap[lang][word] = i
-			wordMapInverse[lang] = append(wordMapInverse[lang], word)
+			if word != "" {
+				wordMap[lang][word] = i
+				wordMapInverse[lang] = append(wordMapInverse[lang], word)
+			}
 		}
 	}
 	return err

@@ -37,7 +37,6 @@ func assembleCmd() *cobra.Command {
 			}
 
 			wordListLoadAndVerify()
-			settings.GetSettings().Lang = lang
 
 			shards := []crypt.ShardT{}
 
@@ -68,7 +67,7 @@ func assembleCmd() *cobra.Command {
 				shards = reader.AddShardPrompt(shards)
 			}
 
-			mnemonic, err := crypt.Assemble(shards, settings.GetSettings().Lang)
+			mnemonic, err := crypt.Assemble(shards, lang)
 			if err != nil {
 				settings.FatalLog(err)
 			}
@@ -98,7 +97,6 @@ func shardCmd() *cobra.Command {
 			}
 
 			wordListLoadAndVerify()
-			settings.GetSettings().Lang = lang
 
 			if k == 0 {
 				var err error
@@ -148,7 +146,7 @@ func shardCmd() *cobra.Command {
 			}
 
 			//settings.DebugLog(mnemonic, k, n)
-			shards, err := crypt.Shard(mnemonic, k, n, settings.GetSettings().Lang)
+			shards, err := crypt.Shard(mnemonic, k, n, lang)
 			if err != nil {
 				settings.FatalLog(err)
 			}
@@ -246,7 +244,6 @@ func SetupCLI() *cobra.Command {
 	})
 
 	settings.GetSettings().Verbose = verbose
-	settings.GetSettings().Lang = lang
 	settings.GetSettings().Debug = debug
 
 	settings.VerboseLog("Verbose mode enabled")
