@@ -6,6 +6,7 @@
 
 [![codecov](https://codecov.io/github/garry-sharp/Sharder/graph/badge.svg?token=IWGRIG1DDF)](https://codecov.io/github/garry-sharp/Sharder)
 [![build_and_test](https://github.com/garry-sharp/Sharder/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/garry-sharp/Sharder/actions/workflows/build_and_test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 

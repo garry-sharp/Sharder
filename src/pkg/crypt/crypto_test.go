@@ -75,16 +75,6 @@ func TestBytesToElevenBit2(t *testing.T) {
 	//thank year wave sausage worth useful legal winner thank yellow
 }
 
-func TestGetWordIndex(t *testing.T) {
-	var res []int
-	words := parseMnemonic(tests[0].mnemonic)
-	for _, word := range words {
-		v, _ := GetWordIndex("en", word)
-		res = append(res, v)
-	}
-	reflect.DeepEqual(res, tests[0].mnemonicindex)
-}
-
 // TODO more tests
 func TestDemodulate(t *testing.T) {
 
