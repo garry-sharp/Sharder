@@ -11,10 +11,11 @@ func TestMnemonicToEthAddress(t *testing.T) {
 	address, err := MnemonicToEthAddress(mnemonic, lang)
 	if err != nil {
 		t.Error(err)
-	}
-	expected := strings.ToLower("0x4472E997bB90c6d82a134Cd9b1D94d5F75912EB2")
-	if address != expected {
-		t.Errorf("Expected %s, got %s", expected, address)
+	} else {
+		expected := strings.ToLower("0x4472E997bB90c6d82a134Cd9b1D94d5F75912EB2")
+		if address != expected {
+			t.Errorf("Expected %s, got %s", expected, address)
+		}
 	}
 
 }
