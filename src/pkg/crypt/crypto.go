@@ -102,13 +102,6 @@ func BytesToElevenBit2(bytes []byte) []int {
 		}
 	}
 
-	// for i, c := range str {
-	// 	fmt.Print(string(c))
-	// 	if i%11 == 0 && i != 0 {
-	// 		fmt.Print(" ")
-	// 	}
-	// }
-
 	csBits := len(bytes) / 4
 	bitcount := 0
 	totalLength := len(bytes)*8 + csBits
