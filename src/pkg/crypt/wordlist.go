@@ -13,6 +13,7 @@ import (
 // Map of language + word to int.
 var wordMap map[string]map[string]int
 var wordMapInverse map[string][]string
+var supportedLangs []string
 
 //go:embed wordlists/*.txt
 var wordlists embed.FS
@@ -44,6 +45,7 @@ func LoadWordLists() error {
 	})
 
 	sort.Strings(paths)
+	supportedLangs = []string{}
 	for _, path := range paths {
 		fname := filepath.Base(path)
 		expRes := r.FindStringSubmatch(fname)
@@ -62,6 +64,7 @@ func LoadWordLists() error {
 				wordMapInverse[lang] = append(wordMapInverse[lang], word)
 			}
 		}
+		supportedLangs = append(supportedLangs, lang)
 	}
 	return err
 }
@@ -87,9 +90,5 @@ func GetWordList(lang string) ([]string, error) {
 }
 
 func GetSupportedLanguages() []string {
-	langs := []string{}
-	for lang, _ := range wordMap {
-		langs = append(langs, lang)
-	}
-	return langs
+	return supportedLangs
 }
