@@ -9,32 +9,10 @@ import (
 	"github.com/garry-sharp/Sharder/pkg/crypt"
 	"github.com/garry-sharp/Sharder/pkg/settings"
 	"github.com/manifoldco/promptui"
-	"github.com/savioxavier/termlink"
-
-	"embed"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
-
-var asciiArt string
-
-//go:embed ascii/ascii.txt
-var asciiArtDF embed.FS
-
-func init() {
-	wd, err := os.Getwd()
-	fmt.Println(wd)
-	if err != nil {
-		settings.FatalLog(err)
-	}
-	f, err := asciiArtDF.ReadFile("ascii/ascii.txt")
-	if err != nil {
-		settings.FatalLog(err)
-	}
-	asciiArt = string(f)
-
-}
 
 // Add global flags
 var verbose bool
@@ -52,13 +30,13 @@ func assembleCmd() *cobra.Command {
 		Long:  "Assemble mnemonic from shards",
 		Run: func(cmd *cobra.Command, args []string) {
 
+			fmt.Println(generateIntroText())
 			if lang == "" {
 				lang = reader.ReadLang()
 				fmt.Println(lang)
 			}
 
 			wordListLoadAndVerify()
-			settings.GetSettings().Lang = lang
 
 			shards := []crypt.ShardT{}
 
@@ -89,7 +67,7 @@ func assembleCmd() *cobra.Command {
 				shards = reader.AddShardPrompt(shards)
 			}
 
-			mnemonic, err := crypt.Assemble(shards, settings.GetSettings().Lang)
+			mnemonic, err := crypt.Assemble(shards, lang)
 			if err != nil {
 				settings.FatalLog(err)
 			}
@@ -112,14 +90,13 @@ func shardCmd() *cobra.Command {
 		Short: "Generate Shards from mnemonic",
 		Long:  "Generate Shards from mnemonic",
 		Run: func(cmd *cobra.Command, args []string) {
-
+			fmt.Println(generateIntroText())
 			if lang == "" {
 				lang = reader.ReadLang()
 				fmt.Println(lang)
 			}
 
 			wordListLoadAndVerify()
-			settings.GetSettings().Lang = lang
 
 			if k == 0 {
 				var err error
@@ -153,8 +130,23 @@ func shardCmd() *cobra.Command {
 				}
 			}
 
+			eth, err := crypt.MnemonicToEthAddress(mnemonic, lang)
+			if err != nil {
+				settings.FatalLog(err)
+			}
+
+			mnemonicConfirmText := fmt.Sprintf("The mnemonic entered is:\n\033[33m%s\033[0m\nThe first ethereum address that this mnemonic would generate is: \n\033[33m%s\033[0m\n\nIs this correct?", mnemonic, eth)
+			fmt.Println(mnemonicConfirmText)
+			prompt := promptui.Select{Label: mnemonicConfirmText, Items: []string{"Yes", "No"}}
+			op, _, _ := prompt.Run()
+			if op == 1 {
+				mnemonic = ""
+				cmd.Run(cmd, args)
+				os.Exit(0)
+			}
+
 			//settings.DebugLog(mnemonic, k, n)
-			shards, err := crypt.Shard(mnemonic, k, n, settings.GetSettings().Lang)
+			shards, err := crypt.Shard(mnemonic, k, n, lang)
 			if err != nil {
 				settings.FatalLog(err)
 			}
@@ -216,11 +208,7 @@ func SetupCLI() *cobra.Command {
 		Short: "A crypto mnemonic sharder",
 		Long:  asciiArt,
 		Run: func(cmd *cobra.Command, args []string) {
-
-			fmt.Println(asciiArt)
-			fmt.Println("\nWelcome to Sharder, a crypto mnemonic sharder")
-			donate := termlink.ColorLink("DONATING HERE", "http://google.com", "blue")
-			fmt.Println("This tool has been made for free, please consider supporting this project by", donate)
+			fmt.Println(generateIntroText())
 			prompt := promptui.Select{Label: "What would you like to do?", Items: []string{"Shard", "Assemble", "Exit"}}
 			o, _, err := prompt.Run()
 			if err != nil {
@@ -234,7 +222,6 @@ func SetupCLI() *cobra.Command {
 			case 1:
 				assembleCmd().Run(cmd, args)
 			case 2:
-				fmt.Println("Thank you for using Sharder, please consider supporting this project by", donate)
 				os.Exit(0)
 			}
 		},
@@ -257,7 +244,6 @@ func SetupCLI() *cobra.Command {
 	})
 
 	settings.GetSettings().Verbose = verbose
-	settings.GetSettings().Lang = lang
 	settings.GetSettings().Debug = debug
 
 	settings.VerboseLog("Verbose mode enabled")

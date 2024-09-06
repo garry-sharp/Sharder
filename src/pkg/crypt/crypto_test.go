@@ -2,7 +2,7 @@ package crypt
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/hex"
 	"os"
 	"reflect"
 	"testing"
@@ -59,7 +59,6 @@ func TestMain(m *testing.M) {
 
 func TestE2E1(t *testing.T) {
 	r, _ := MnemonicFromBytes2(tests[2].bytestring, "en")
-	//fmt.Println(BytesToElevenBit2(tests[2].bytestring))
 	if !reflect.DeepEqual(r, tests[2].mnemonic) {
 		t.Errorf("Expected result: %v, but got: %v", tests[2].mnemonic, r)
 	}
@@ -76,22 +75,10 @@ func TestBytesToElevenBit2(t *testing.T) {
 	//thank year wave sausage worth useful legal winner thank yellow
 }
 
-func TestGetWordIndex(t *testing.T) {
-	var res []int
-	words := parseMnemonic(tests[0].mnemonic)
-	for _, word := range words {
-		v, _ := GetWordIndex("en", word)
-		res = append(res, v)
-	}
-	reflect.DeepEqual(res, tests[0].mnemonicindex)
-}
-
 // TODO more tests
 func TestDemodulate(t *testing.T) {
 
-	result, err := MnemonicToBytes2(tests[0].mnemonic, "en")
-	fmt.Println(result)
-	fmt.Println(err)
+	result, _ := MnemonicToBytes2(tests[0].mnemonic, "en")
 
 	if !bytes.Equal(result, tests[0].bytestring) {
 		t.Errorf("Expected result: %v, but got: %v", tests[0].bytestring, result)
@@ -124,7 +111,68 @@ func TestParseMnemonic(t *testing.T) {
 
 func TestElevenBitToBytes2(t *testing.T) {
 	ElevenBitToBytes2(tests[0].mnemonicindex)
-	fmt.Println("Expected: ")
-	fmt.Printf("%08b ", tests[0].bytestring)
-	fmt.Println()
+}
+
+func TestGenerateMnemonic(t *testing.T) {
+
+	a, _ := GenerateMnemonic(12, "en")
+	b, _ := GenerateMnemonic(12, "en")
+
+	if reflect.DeepEqual(a, b) {
+		t.Errorf("Results: %v and %v should not be the same", a, b)
+	}
+}
+
+func TestAssemble(t *testing.T) {
+
+	hexDec := func(x string) []byte {
+		a, _ := hex.DecodeString(x[2:])
+		return a
+	}
+
+	shards := []ShardT{
+		{
+			Alias: "oddball-piano",
+			Id:    hexDec("0x03")[0],
+			Data:  hexDec("0xd3d5fce5fda6d0a4f482eb0fc2aba67b"),
+		},
+		{
+			Alias: "outgoing-vegetable",
+			Id:    hexDec("0x45")[0],
+			Data:  hexDec("0x3f556a8cbbf8f467216673f532711505"),
+		},
+		{
+			Alias: "foolish-brick",
+			Id:    hexDec("0x2d")[0],
+			Data:  hexDec("0xc24c2f2779437cb06c2f6783ad348691"),
+		},
+		{
+			Alias: "courageous-salad",
+			Id:    hexDec("0xf4")[0],
+			Data:  hexDec("0x88e7dc42fdb71b13b8736b9e4573f625"),
+		},
+	}
+
+	_, err1 := Assemble(shards[0:1], "en")
+	res2, _ := Assemble(shards[0:2], "en")
+	res3, _ := Assemble(shards[0:3], "en")
+	res4, _ := Assemble(shards[0:4], "en")
+	correctResult := "boy tower radio cradle win toast smile milk task require flush danger"
+
+	if err1 == nil {
+		t.Errorf("Expected error, but got nil")
+	}
+
+	if reflect.DeepEqual(res2, correctResult) {
+		t.Errorf("Expected difference but got the same %v", correctResult)
+	}
+
+	if !reflect.DeepEqual(res3, correctResult) {
+		t.Errorf("Expected result: %v, but got: %v", correctResult, res3)
+	}
+
+	if !reflect.DeepEqual(res4, correctResult) {
+		t.Errorf("Expected result: %v, but got: %v", correctResult, res4)
+	}
+
 }

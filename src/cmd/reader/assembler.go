@@ -64,6 +64,8 @@ func AddShardPrompt(shards []crypt.ShardT) []crypt.ShardT {
 				return AddShardPrompt(shards)
 			}
 
+			fmt.Println(id, shard)
+
 			shards = append(shards, crypt.ShardT{Id: id, Data: shard})
 			alias := alias.GetAlias(id, shard)
 

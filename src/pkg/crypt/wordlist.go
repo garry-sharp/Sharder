@@ -13,6 +13,7 @@ import (
 // Map of language + word to int.
 var wordMap map[string]map[string]int
 var wordMapInverse map[string][]string
+var supportedLangs []string
 
 //go:embed wordlists/*.txt
 var wordlists embed.FS
@@ -44,11 +45,13 @@ func LoadWordLists() error {
 	})
 
 	sort.Strings(paths)
+	supportedLangs = []string{}
 	for _, path := range paths {
 		fname := filepath.Base(path)
 		expRes := r.FindStringSubmatch(fname)
 		lang := string(expRes[2])
 		wordMap[lang] = make(map[string]int)
+		wordMapInverse[lang] = []string{}
 		wordBytes, err := wordlists.ReadFile(path)
 		if err != nil {
 			return err
@@ -56,9 +59,12 @@ func LoadWordLists() error {
 		words := strings.Split(string(wordBytes), "\n")
 
 		for i, word := range words {
-			wordMap[lang][word] = i
-			wordMapInverse[lang] = append(wordMapInverse[lang], word)
+			if word != "" {
+				wordMap[lang][word] = i
+				wordMapInverse[lang] = append(wordMapInverse[lang], word)
+			}
 		}
+		supportedLangs = append(supportedLangs, lang)
 	}
 	return err
 }
@@ -66,11 +72,11 @@ func LoadWordLists() error {
 func GetWordIndex(lang, word string) (int, error) {
 
 	if _, ok := wordMap[lang]; !ok {
-		return 0, fmt.Errorf("language %s not supported", lang)
+		return -1, fmt.Errorf("language %s not supported", lang)
 	}
 
 	if _, ok := wordMap[lang][word]; !ok {
-		return 0, fmt.Errorf("word %s not found in language %s", word, lang)
+		return -1, fmt.Errorf("word %s not found in language %s", word, lang)
 	}
 
 	return wordMap[lang][word], nil
@@ -84,9 +90,5 @@ func GetWordList(lang string) ([]string, error) {
 }
 
 func GetSupportedLanguages() []string {
-	langs := []string{}
-	for lang, _ := range wordMap {
-		langs = append(langs, lang)
-	}
-	return langs
+	return supportedLangs
 }

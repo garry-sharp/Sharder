@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/garry-sharp/Sharder/pkg/crypt/alias"
-	"github.com/garry-sharp/Sharder/pkg/settings"
 
 	"github.com/corvus-ch/shamir"
 )
@@ -61,15 +60,19 @@ func GetChecksum(entropy []byte) byte {
 
 // GenerateMnemonic generates a mnemonic phrase of the specified length in bytes.
 // It uses a random number generator to generate the bytes.
-func GenerateMnemonic(len int) []string {
+func GenerateMnemonic(len int, lang string) ([]string, error) {
 	src := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(src)
-	res := []byte{}
+	res := []string{}
+
 	for i := 0; i < len; i++ {
-		// Append last byte of uint256
-		res = append(res, byte(r.Uint64()&255))
+		randWord := wordMapInverse[lang][r.Intn(2048)]
+		if randWord == "" {
+			return []string{}, fmt.Errorf("word not found")
+		}
+		res = append(res, randWord)
 	}
-	return []string{}
+	return res, nil
 }
 
 // MnemonicFromBytes2 converts a byte slice to a mnemonic phrase using the specified language.
@@ -98,13 +101,6 @@ func BytesToElevenBit2(bytes []byte) []int {
 			}
 		}
 	}
-
-	// for i, c := range str {
-	// 	fmt.Print(string(c))
-	// 	if i%11 == 0 && i != 0 {
-	// 		fmt.Print(" ")
-	// 	}
-	// }
 
 	csBits := len(bytes) / 4
 	bitcount := 0
@@ -166,7 +162,7 @@ func Assemble(shards []ShardT, lang string) (string, error) {
 	if err != nil {
 		return "", err
 	} else {
-		return MnemonicFromBytes2(b, settings.GetSettings().Lang)
+		return MnemonicFromBytes2(b, lang)
 	}
 }
 
